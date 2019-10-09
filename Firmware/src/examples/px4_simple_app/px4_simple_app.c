@@ -154,7 +154,7 @@ int px4_simple_app_main(int argc, char *argv[])
 				    px4_sleep(1);
 				    
 				     PX4_INFO("aqui");
-				     
+				      PX4_INFO("Funcionando git "); 
 				       stm32_gpiowrite(GPIO_GPIO5_OUTPUT,1);
 				       
 				  // px4_sleep(2);
