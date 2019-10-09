@@ -12,7 +12,7 @@
 #include <uORB/uORB.h>
 #include <uORB/topics/sensor_combined.h>
 #include <uORB/topics/sensor_baro.h>
-//#include <uORB/topics/vehicle_attitude.h>
+#include <uORB/topics/vehicle_attitude.h>
 #include <uORB/topics/tune_control.h>
 
 
@@ -52,20 +52,24 @@ int px4_simple_app_main(int argc, char *argv[])
 	int sensor_sub_fd  = orb_subscribe(ORB_ID(sensor_combined));
 	/*criados por mim*/
 	int sensor_sub_baro = orb_subscribe(ORB_ID(sensor_baro));
+	int veihcule_sub_fd = orb_subscribe(ORB_ID(vehicle_local_position));
+	
 	/* limit the update rate to 5 Hz */
 	orb_set_interval(sensor_sub_fd, 500);
 	/*setando taxa de atualização de dados*/
 	orb_set_interval(sensor_sub_baro, 500);
 	
 	/* advertise attitude topic */
-	struct tune_control_s att;
-	memset(&att, 0, sizeof(att));
-	orb_advert_t att_pub = orb_advertise(ORB_ID(tune_control), &att);
+	//struct tune_control_s att;
+	//memset(&att, 0, sizeof(att));
+	//orb_advert_t att_pub = orb_advertise(ORB_ID(tune_control), &att);
 
 	/* one could wait for multiple topics with this technique, just using one here */
 	px4_pollfd_struct_t fds[] = {
 		{ .fd = sensor_sub_fd,   .events = POLLIN },
 		{ .fd = sensor_sub_baro,   .events = POLLIN },
+		{ .fd = veihcule_sub_fd,   .events = POLLIN },
+		
 		/* there could be more file descriptors here, in the form like:
 		 * { .fd = other_sub_fd,   .events = POLLIN },
 		 */
@@ -89,15 +93,14 @@ int px4_simple_app_main(int argc, char *argv[])
 	stm32_gpiowrite(GPIO_GPIO4_OUTPUT,1);
 	stm32_gpiowrite(GPIO_GPIO5_OUTPUT,0);
 	
-	double baro1 = 0;
-	double baro2 = 0;
-	double baro3 = 0;
+	//double baro1 = 0;
+	//double baro2 = 0;
+	//double baro3 = 0;
 	
 
 	while(true){
-		baro3 = baro2;
-		baro2 = baro1;
-		ba
+		//baro3 = baro2;
+		//baro2 = baro1;
 		/* wait for sensor update of 1 file descriptor for 1000 ms (1 second) */
 		int poll_ret = px4_poll(fds, 1, 1000);
 
@@ -144,19 +147,26 @@ int px4_simple_app_main(int argc, char *argv[])
 		
 				/* obtained data for the first file descriptor */
 				struct sensor_baro_s rawbaro;
+				struct vehicle_attitude_s rawVeicule;
 				/* copy sensors raw data into local buffer */
 				orb_copy(ORB_ID(sensor_baro), sensor_sub_baro, &rawbaro);
 				PX4_INFO("Barometer:\t%8.4f",
 					 (double)rawbaro.pressure);
-			 	  baro1 = rawbaro.pressure;
+				
+				orb_copy(ORB_ID(vehicle_attitude), veihcule_sub_fd, &rawVeicule);
+				
+			        PX4_INFO("Attitude: %f",
+			        	 (double)rawVeicule.z)
+			
+			 	 // baro1 = rawbaro.pressure;
 			 	  
 				    stm32_gpiowrite(GPIO_GPIO5_OUTPUT,0);
 				    px4_sleep(1);
 				    
 				     PX4_INFO("aqui");
-				      PX4_INFO("Funcionando git "); 
+				     
 				       stm32_gpiowrite(GPIO_GPIO5_OUTPUT,1);
-				       
+				       px4_sleep(1);
 				  // px4_sleep(2);
 				    orb_publish(ORB_ID(tune_control), att_pub, &att);
 				 /* set att and publish this information for other apps
