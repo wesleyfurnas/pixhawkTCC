@@ -24,9 +24,9 @@
 
 //#include <nuttx/board.h>
 
-#include <nuttx/sdio.h>
-#include <nuttx/mmcsd.h>
-#include <nuttx/analog/adc.h>
+//#include <nuttx/sdio.h>
+//#include <nuttx/mmcsd.h>
+//#include <nuttx/analog/adc.h>
 
 #include <stm32.h>
 #include "board_config.h"
