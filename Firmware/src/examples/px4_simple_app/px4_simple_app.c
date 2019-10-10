@@ -57,9 +57,9 @@ int px4_simple_app_main(int argc, char *argv[])
 	int veihcule_sub_fd = orb_subscribe(ORB_ID(vehicle_air_data));
 	
 	/* limit the update rate to 5 Hz */
-	orb_set_interval(sensor_sub_fd, 500);
+	orb_set_interval(sensor_sub_fd, 100);
 	/*setando taxa de atualização de dados*/
-	orb_set_interval(sensor_sub_baro, 500);
+	orb_set_interval(sensor_sub_baro, 100);
 	
 	/* advertise attitude topic */
 	//struct tune_control_s att;
@@ -76,7 +76,7 @@ int px4_simple_app_main(int argc, char *argv[])
 		 * { .fd = other_sub_fd,   .events = POLLIN },
 		 */
 	};
-
+	int cont = 0;
 	int error_counter = 0;
 	//int i = 10000;
 	
@@ -106,7 +106,7 @@ int px4_simple_app_main(int argc, char *argv[])
 		a3 = a2;
 		a2 = a1;
 		/* wait for sensor update of 1 file descriptor for 1000 ms (1 second) */
-		int poll_ret = px4_poll(fds, 1, 1000);
+		int poll_ret = px4_poll(fds, 1, 100);
 
 		/* handle the poll result */
 		if (poll_ret == 0) {
@@ -155,7 +155,11 @@ int px4_simple_app_main(int argc, char *argv[])
 				   
 			 	    a1 = rawVeicule.baro_alt_meter;
 			 	    /*verify the init of airdrop*/
-			 	    if(a1 > 2.0){
+			 	  if(cont == 0){
+			 	  	a2 = a1;
+			 	  	cont ++;
+			 	  }
+			 	  if((a1 - a2) > 2.0){
 			 	    	state = 1;
 			 	    }
 			 	    if(state == 1){
