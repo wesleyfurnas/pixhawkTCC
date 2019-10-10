@@ -1,7 +1,8 @@
-		     CAUTION! REMOVE THIS TEXT  BEFORE PUT IN SD CARD 
+		     CAUTION! REMOVE ALL THAT INIT FOR "#"THIS TEXT  BEFORE PUT IN SD CARD 
 #################################################################################
 ## Autor: https://github.com/wesleyfurnas/pixhawkTCC
 ## Description: This text it's the part of  logger in SD for pixhawk 1 . We can to solve datas to refer altitude,  pressure, and others.
+
 vehicle_air_data, 500
 sensor_combined, 500
 sensor_baro, 500
