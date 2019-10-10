@@ -76,8 +76,9 @@ int px4_simple_app_main(int argc, char *argv[])
 		 * { .fd = other_sub_fd,   .events = POLLIN },
 		 */
 	};
-	int cont = 0;
+	double  altRelative = 0;
 	int error_counter = 0;
+	int cont = 0 ;
 	//int i = 10000;
 	
 	/*configure gpioOutput*/
@@ -98,12 +99,12 @@ int px4_simple_app_main(int argc, char *argv[])
 	/*buffers determine variation altitude negative or positive*/
 	double a1 = 0;
 	double a2 = 0;
-	double a3 = 0;
+	//double a3 = 0;
 	/*state 0 = idle ; state 1 = running */
 	int state = 0;
 
 	while(true){
-		a3 = a2;
+		//a3 = a2;
 		a2 = a1;
 		/* wait for sensor update of 1 file descriptor for 1000 ms (1 second) */
 		int poll_ret = px4_poll(fds, 1, 100);
@@ -155,18 +156,18 @@ int px4_simple_app_main(int argc, char *argv[])
 				   
 			 	    a1 = rawVeicule.baro_alt_meter;
 			 	    /*verify the init of airdrop*/
-			 	  if(cont == 0){
-			 	  	a2 = a1;
-			 	  	cont ++;
+			 	  if(cont == 0 ){
+			 	      altRelative = a1;
+			 	    cont ++;
 			 	  }
-			 	  if((a1 - a2) > 2.0){
+			 	  if((a1 - altRelative) > 2.0){
 			 	    	state = 1;
 			 	    }
 			 	    if(state == 1){
-			 	    	if((a1 < a2) && (a2 < a3) ){
+			 	    	if(a1 < a2 ){
 			 	    	   stm32_gpiowrite(GPIO_GPIO5_OUTPUT,1);
 			 	    	   PX4_INFO("Apogeu was : \t%8.4f meters",
-			        	 a3);
+			        	 a2);
 
 			 	    	}
 			 	    }
